@@ -22,6 +22,7 @@ ChorusFlangerAudioProcessor::ChorusFlangerAudioProcessor()
                        )
 #endif
 {
+    addParameter(mDryWetParameter = new juce::AudioParameterFloat)
 }
 
 ChorusFlangerAudioProcessor::~ChorusFlangerAudioProcessor()

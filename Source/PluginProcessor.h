@@ -76,6 +76,7 @@ private:
     float mFeedbackLeft;
     float mFeedbackRight;
     
+    float mDelayTimeSmoothed;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChorusFlangerAudioProcessor)
 };
