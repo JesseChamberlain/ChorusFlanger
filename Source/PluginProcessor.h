@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 
+#define MAX_DELAY_TIME 2
+
 //==============================================================================
 /**
 */
@@ -55,8 +57,26 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    // Interpolation algorithm
+    float lin_interp(float sampleX, float sampleX1, float inPhase);
 
 private:
+    
+    juce::AudioParameterFloat* mDryWetParameter;
+    juce::AudioParameterFloat* mFeedbackParameter;
+    juce::AudioParameterFloat* mDelayTimeParameter;
+    
+    float* mCircularBufferLeft;
+    float* mCircularBufferRight;
+    int mCircularBufferWriteHead;
+    int mCircularBufferLength;
+    float mDelayTimeInSamples;
+    float mDelayReadHead;
+    float mFeedbackLeft;
+    float mFeedbackRight;
+    
+    float mDelayTimeSmoothed;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChorusFlangerAudioProcessor)
 };
