@@ -15,15 +15,15 @@ ChorusFlangerAudioProcessorEditor::ChorusFlangerAudioProcessorEditor (ChorusFlan
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (400, 200);
     
     auto& params = processor.getParameters();
     
     // Set DryWet parameter
     juce::AudioParameterFloat* dryWetParameter = (juce::AudioParameterFloat*)params.getUnchecked(0);
     
-    mDryWetSlider.setBounds(0, 0, 100, 100);
-    mDryWetSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mDryWetSlider.setBounds(0, 20, 400, 50);
+    mDryWetSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     mDryWetSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     mDryWetSlider.setRange(dryWetParameter->range.start, dryWetParameter->range.end);
     mDryWetSlider.setValue(*dryWetParameter);
@@ -36,8 +36,8 @@ ChorusFlangerAudioProcessorEditor::ChorusFlangerAudioProcessorEditor (ChorusFlan
     // Set Feedback parameter
     juce::AudioParameterFloat* feedbackParameter = (juce::AudioParameterFloat*)params.getUnchecked(1);
     
-    mFeedbackSlider.setBounds(100, 0, 100, 100);
-    mFeedbackSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mFeedbackSlider.setBounds(0, 70, 400, 50);
+    mFeedbackSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     mFeedbackSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     mFeedbackSlider.setRange(feedbackParameter->range.start, feedbackParameter->range.end);
     mFeedbackSlider.setValue(*feedbackParameter);
@@ -50,8 +50,8 @@ ChorusFlangerAudioProcessorEditor::ChorusFlangerAudioProcessorEditor (ChorusFlan
     // Set Feedback parameter
     juce::AudioParameterFloat* delayTimeParameter = (juce::AudioParameterFloat*)params.getUnchecked(2);
     
-    mDelayTimeSlider.setBounds(200, 0, 100, 100);
-    mDelayTimeSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mDelayTimeSlider.setBounds(0, 120, 400, 50);
+    mDelayTimeSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     mDelayTimeSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     mDelayTimeSlider.setRange(delayTimeParameter->range.start, delayTimeParameter->range.end);
     mDelayTimeSlider.setValue(*delayTimeParameter);
