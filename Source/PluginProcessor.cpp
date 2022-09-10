@@ -28,17 +28,35 @@ ChorusFlangerAudioProcessor::ChorusFlangerAudioProcessor()
                                                                   1.0,
                                                                   0.5));
     
+    addParameter(mDepthParameter = new juce::AudioParameterFloat({ "depth", 1 },
+                                                                     "Depth",
+                                                                     0.0,
+                                                                     1.0,
+                                                                     0.5));
+    
+    addParameter(mRateParameter = new juce::AudioParameterFloat({ "rate", 1 },
+                                                                     "Rate",
+                                                                     0.1f,
+                                                                     20.0f,
+                                                                     10.0f));
+    
+    addParameter(mPhaseOffsetParameter = new juce::AudioParameterFloat({ "phaseoffset", 1 },
+                                                                     "Phase Offset",
+                                                                     0.0f,
+                                                                     1.0f,
+                                                                     0.0f));
+    
     addParameter(mFeedbackParameter = new juce::AudioParameterFloat({ "feedback", 1 },
                                                                     "Feedback",
                                                                     0.0,
                                                                     0.98,
                                                                     0.5));
     
-    addParameter(mDelayTimeParameter = new juce::AudioParameterFloat({ "delaytime", 1 },
-                                                                     "Delay Time",
-                                                                     0.01,
-                                                                     MAX_DELAY_TIME,
-                                                                     0.5));
+    addParameter(mTypeParameter = new juce::AudioParameterInt({ "type", 1 },
+                                                                     "Type",
+                                                                     0,
+                                                                     1,
+                                                                     0));
     
     mCircularBufferLeft = nullptr;
     mCircularBufferRight = nullptr;
@@ -131,7 +149,7 @@ void ChorusFlangerAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    mDelayTimeInSamples = sampleRate * *mDelayTimeParameter;
+    mDelayTimeInSamples = 1;
     
     mCircularBufferLength = sampleRate * MAX_DELAY_TIME;
     
@@ -148,8 +166,6 @@ void ChorusFlangerAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     juce::zeromem(mCircularBufferRight, mCircularBufferLength *sizeof(float));
     
     mCircularBufferWriteHead = 0;
-    
-    mDelayTimeSmoothed = *mDelayTimeParameter;
 }
 
 void ChorusFlangerAudioProcessor::releaseResources()
@@ -199,13 +215,13 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    mDelayTimeInSamples = getSampleRate() * *mDelayTimeParameter;
+    mDelayTimeInSamples = getSampleRate() * 1;
     
     float* leftChannel = buffer.getWritePointer(0);
     float* rightChannel = buffer.getWritePointer(1);
     
     for (int i = 0; i < buffer.getNumSamples(); i++) {
-        mDelayTimeSmoothed = mDelayTimeSmoothed - 0.0001 * (mDelayTimeSmoothed - *mDelayTimeParameter);
+        mDelayTimeSmoothed = mDelayTimeSmoothed - 0.0001 * (mDelayTimeSmoothed - 1);
         mDelayTimeInSamples = getSampleRate() * mDelayTimeSmoothed;
         
         mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;

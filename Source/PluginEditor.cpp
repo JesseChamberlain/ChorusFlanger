@@ -46,20 +46,6 @@ ChorusFlangerAudioProcessorEditor::ChorusFlangerAudioProcessorEditor (ChorusFlan
     mFeedbackSlider.onValueChange = [this, feedbackParameter] { *feedbackParameter = mFeedbackSlider.getValue();};
     mFeedbackSlider.onDragStart = [feedbackParameter] {feedbackParameter->beginChangeGesture();};
     mFeedbackSlider.onDragEnd = [feedbackParameter] {feedbackParameter->endChangeGesture();};
-    
-    // Set Feedback parameter
-    juce::AudioParameterFloat* delayTimeParameter = (juce::AudioParameterFloat*)params.getUnchecked(2);
-    
-    mDelayTimeSlider.setBounds(0, 120, 400, 50);
-    mDelayTimeSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    mDelayTimeSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-    mDelayTimeSlider.setRange(delayTimeParameter->range.start, delayTimeParameter->range.end);
-    mDelayTimeSlider.setValue(*delayTimeParameter);
-    addAndMakeVisible(mDelayTimeSlider);
-    
-    mDelayTimeSlider.onValueChange = [this, delayTimeParameter] { *delayTimeParameter = mDelayTimeSlider.getValue();};
-    mDelayTimeSlider.onDragStart = [delayTimeParameter] {delayTimeParameter->beginChangeGesture();};
-    mDelayTimeSlider.onDragEnd = [delayTimeParameter] {delayTimeParameter->endChangeGesture();};
 }
 
 ChorusFlangerAudioProcessorEditor::~ChorusFlangerAudioProcessorEditor()

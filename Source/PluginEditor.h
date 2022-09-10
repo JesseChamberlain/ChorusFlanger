@@ -31,7 +31,6 @@ private:
     
     juce::Slider mDryWetSlider;
     juce::Slider mFeedbackSlider;
-    juce::Slider mDelayTimeSlider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChorusFlangerAudioProcessorEditor)
 };
