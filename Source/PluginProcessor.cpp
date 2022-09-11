@@ -67,6 +67,7 @@ ChorusFlangerAudioProcessor::ChorusFlangerAudioProcessor()
     mFeedbackLeft = 0;
     mFeedbackRight = 0;
     mDelayTimeSmoothed = 0;
+    mLfoPhase = 0;
 }
 
 ChorusFlangerAudioProcessor::~ChorusFlangerAudioProcessor()
@@ -150,6 +151,7 @@ void ChorusFlangerAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     mDelayTimeInSamples = 1;
+    mLfoPhase = 0;
     
     mCircularBufferLength = sampleRate * MAX_DELAY_TIME;
     
@@ -221,7 +223,17 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     float* rightChannel = buffer.getWritePointer(1);
     
     for (int i = 0; i < buffer.getNumSamples(); i++) {
-        mDelayTimeSmoothed = mDelayTimeSmoothed - 0.0001 * (mDelayTimeSmoothed - 1);
+        
+        float lfoOut = sin(2*M_PI * mLfoPhase);
+        mLfoPhase += *mRateParameter * getSampleRate();
+        
+        if (mLfoPhase > 1) {
+            mLfoPhase -= 1;
+        }
+        
+        float lfoOutMapped = juce::jmap(lfoOut, -1.0f, 1.0f, 0.005f, 0.03f);
+        
+        mDelayTimeSmoothed = mDelayTimeSmoothed - 0.0001 * (mDelayTimeSmoothed - lfoOutMapped);
         mDelayTimeInSamples = getSampleRate() * mDelayTimeSmoothed;
         
         mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
