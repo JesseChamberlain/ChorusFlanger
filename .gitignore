@@ -13,6 +13,6 @@ xcuserdata/
 # Generated files
 *.o
 *.pyc
-
+builds/**
 # Backup files
 *~.nib
