@@ -28,10 +28,14 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     ChorusFlangerAudioProcessor& audioProcessor;
-    
-    juce::Slider mDryWetSlider;
-    juce::Slider mFeedbackSlider;
-    juce::Slider mDelayTimeSlider;
 
+    juce::Slider mDryWetSlider;
+    juce::Slider mDepthSlider;
+    juce::Slider mRateSlider;
+    juce::Slider mPhaseOffsetSlider;
+    juce::Slider mFeedbackSlider;
+    
+    juce::ComboBox mType;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChorusFlangerAudioProcessorEditor)
 };
