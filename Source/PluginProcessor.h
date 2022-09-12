@@ -74,17 +74,11 @@ private:
     float* mCircularBufferLeft;
     float* mCircularBufferRight;
     
-    
-    float mDelayTimeInSamples;
-    float mDelayReadHead;
-    
     int mCircularBufferWriteHead;
     int mCircularBufferLength;
     
     float mFeedbackLeft;
     float mFeedbackRight;
-    
-    float mDelayTimeSmoothed;
     
     float mLfoPhase;
     //==============================================================================
