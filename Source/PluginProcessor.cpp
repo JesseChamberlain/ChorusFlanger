@@ -203,7 +203,10 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
+    
+//    DBG("DRYWET: " << *mDryWetParameter);
+//    DBG("PHASEOFFSET: " << *mPhaseOffsetParameter);
+    
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).
@@ -271,16 +274,24 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
             readHeadRight_x1 -= mCircularBufferLength;
         }
         
+//        DBG("linI Left-X: " << readHeadLeft_x);
+//        DBG("linI Left-X1: " << readHeadLeft_x1);
+//        DBG("linI Right-X: " << readHeadRight_x);
+//        DBG("linI Right-X1: " << readHeadRight_x1);
+//        DBG("linI FPL: " << readHeadFloatLeft);
+//        DBG("linI FPR: " << readHeadFloatRight);
+        
         float delaySampleLeft = lin_interp(mCircularBufferLeft[readHeadLeft_x], mCircularBufferLeft[readHeadLeft_x1], readHeadFloatLeft);
         float delaySampleRight = lin_interp(mCircularBufferRight[readHeadRight_x], mCircularBufferRight[readHeadRight_x1], readHeadFloatRight);
         
         mFeedbackLeft = delaySampleLeft * *mFeedbackParameter;
         mFeedbackRight = delaySampleRight * *mFeedbackParameter;
         
+        
         mCircularBufferWriteHead++;
         
         buffer.setSample(0, i, buffer.getSample(0, i) * (1 - *mDryWetParameter) + delaySampleLeft * *mDryWetParameter);
-        buffer.setSample(1, i, buffer.getSample(1, i) * (1 - *mDryWetParameter) + delaySampleLeft * *mDryWetParameter);
+        buffer.setSample(1, i, buffer.getSample(1, i) * (1 - *mDryWetParameter) + delaySampleRight * *mDryWetParameter);
         
         if (mCircularBufferWriteHead >= mCircularBufferLength) {
             mCircularBufferWriteHead = 0;
