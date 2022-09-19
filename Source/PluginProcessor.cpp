@@ -204,9 +204,6 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     
-//    DBG("DRYWET: " << *mDryWetParameter);
-//    DBG("PHASEOFFSET: " << *mPhaseOffsetParameter);
-    
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).
@@ -274,13 +271,6 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
             readHeadRight_x1 -= mCircularBufferLength;
         }
         
-//        DBG("linI Left-X: " << readHeadLeft_x);
-//        DBG("linI Left-X1: " << readHeadLeft_x1);
-//        DBG("linI Right-X: " << readHeadRight_x);
-//        DBG("linI Right-X1: " << readHeadRight_x1);
-//        DBG("linI FPL: " << readHeadFloatLeft);
-//        DBG("linI FPR: " << readHeadFloatRight);
-        
         float delaySampleLeft = lin_interp(mCircularBufferLeft[readHeadLeft_x], mCircularBufferLeft[readHeadLeft_x1], readHeadFloatLeft);
         float delaySampleRight = lin_interp(mCircularBufferRight[readHeadRight_x], mCircularBufferRight[readHeadRight_x1], readHeadFloatRight);
         
@@ -316,12 +306,33 @@ void ChorusFlangerAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    std::unique_ptr<juce::XmlElement> xml(new juce::XmlElement("ChorusFlanger"));
+    
+    xml->setAttribute("DryWet", *mDryWetParameter);
+    xml->setAttribute("Depth", *mDepthParameter);
+    xml->setAttribute("Rate", *mRateParameter);
+    xml->setAttribute("Feedback", *mFeedbackParameter);
+    xml->setAttribute("PhaseOffset", *mPhaseOffsetParameter);
+    xml->setAttribute("Type", *mTypeParameter);
+    
+    copyXmlToBinary(*xml, destData);
 }
 
 void ChorusFlangerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+    
+    if (xml.get() != nullptr && xml->hasTagName("ChorusFlanger")) {
+        
+        *mDryWetParameter = xml->getDoubleAttribute("DryWet");
+        *mDepthParameter = xml->getDoubleAttribute("Depth");
+        *mRateParameter = xml->getDoubleAttribute("Rate");
+        *mFeedbackParameter = xml->getDoubleAttribute("Feedback");
+        *mPhaseOffsetParameter = xml->getDoubleAttribute("PhaseOffset");
+        *mTypeParameter = xml->getIntAttribute("Type");
+    }
 }
 
 //==============================================================================
