@@ -230,44 +230,70 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     /** iterate through all the samples in the buffer */
     for (int i = 0; i < buffer.getNumSamples(); i++) {
         
+        /** write into our circular buffer */
+        mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
+        mCircularBufferRight[mCircularBufferWriteHead] = rightChannel[i] + mFeedbackRight;
+        
         /** generate the left lfo output */
         float lfoOutLeft = sin(2*M_PI * mLfoPhase);
         
-        lfoOutLeft *= *mDepthParameter;
-        float lfoOutMappedLeft = juce::jmap(lfoOutLeft, -1.0f, 1.0f, 0.005f, 0.03f);
-        float delayTimeSamplesLeft = getSampleRate() * lfoOutMappedLeft;
-        
+        /** calculate the right channel lfo phase */
         float lfoPhaseRight = mLfoPhase + *mPhaseOffsetParameter;
         
         if (lfoPhaseRight > 1) {
             lfoPhaseRight -= 1;
         }
         
+        /** generate the right channel output */
         float lfoOutRight = sin(2*M_PI * lfoPhaseRight);
-        float lfoOutMappedRight = juce::jmap(lfoOutRight, -1.0f, 1.0f, 0.005f, 0.03f);
-        float delayTimeSamplesRight = getSampleRate() * lfoOutMappedRight;
         
+        /** move the lfo phase forward */
         mLfoPhase += *mRateParameter / getSampleRate();
         
         if (mLfoPhase > 1) {
             mLfoPhase -= 1;
         }
         
-        mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
-        mCircularBufferRight[mCircularBufferWriteHead] = rightChannel[i] + mFeedbackRight;
+        /** control the lfo depth */
+        lfoOutLeft *= *mDepthParameter;
+        lfoOutRight *= *mDepthParameter;
         
+        float lfoOutMappedLeft = 0;
+        float lfoOutMappedRight = 0;
+        
+        /** map lfo to desired delay times */
+        
+        /** Chorus */
+        if (*mTypeParameter == 0){
+            lfoOutMappedLeft = juce::jmap(lfoOutLeft, -1.0f, 1.0f, 0.005f, 0.03f);
+            lfoOutMappedRight = juce::jmap(lfoOutRight, -1.0f, 1.0f, 0.005f, 0.03f);
+        }
+        
+        /** Flanger */
+        if (*mTypeParameter == 1){
+            lfoOutMappedLeft = juce::jmap(lfoOutLeft, -1.0f, 1.0f, 0.001f, 0.005f);
+            lfoOutMappedRight = juce::jmap(lfoOutRight, -1.0f, 1.0f, 0.001f, 0.005f);
+        }
+        
+        /** calculate the delay length in samples */
+        float delayTimeSamplesLeft = getSampleRate() * lfoOutMappedLeft;
+        float delayTimeSamplesRight = getSampleRate() * lfoOutMappedRight;
+        
+        /** caluculate the left read head position */
         float delayReadHeadLeft = mCircularBufferWriteHead - delayTimeSamplesLeft;
         
         if (delayReadHeadLeft < 0) {
             delayReadHeadLeft += mCircularBufferLength;
         }
         
+        /** calculate the right read head position */
         float delayReadHeadRight = mCircularBufferWriteHead - delayTimeSamplesRight;
         
         if (delayReadHeadRight < 0) {
             delayReadHeadRight += mCircularBufferLength;
         }
         
+        /** calculate linear interpolation points for the left channel */
         int readHeadLeft_x = (int)delayReadHeadLeft;
         int readHeadLeft_x1 = readHeadLeft_x + 1;
         float readHeadFloatLeft = delayReadHeadLeft - readHeadLeft_x;
@@ -276,6 +302,7 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
             readHeadLeft_x1 -= mCircularBufferLength;
         }
         
+        /** calculate linear interpolation points for the right channel */
         int readHeadRight_x = (int)delayReadHeadRight;
         int readHeadRight_x1 = readHeadRight_x + 1;
         float readHeadFloatRight = delayReadHeadRight - readHeadRight_x;
@@ -284,6 +311,7 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
             readHeadRight_x1 -= mCircularBufferLength;
         }
         
+        /** generate left and right output samples */
         float delaySampleLeft = lin_interp(mCircularBufferLeft[readHeadLeft_x], mCircularBufferLeft[readHeadLeft_x1], readHeadFloatLeft);
         float delaySampleRight = lin_interp(mCircularBufferRight[readHeadRight_x], mCircularBufferRight[readHeadRight_x1], readHeadFloatRight);
         
