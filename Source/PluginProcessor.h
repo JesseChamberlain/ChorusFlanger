@@ -63,24 +63,25 @@ public:
 
 private:
     
+    /** Parameter Declarations */
     juce::AudioParameterFloat* mDryWetParameter;
     juce::AudioParameterFloat* mDepthParameter;
     juce::AudioParameterFloat* mRateParameter;
     juce::AudioParameterFloat* mPhaseOffsetParameter;
     juce::AudioParameterFloat* mFeedbackParameter;
-    
     juce::AudioParameterInt* mTypeParameter;
     
+    /** Circular Buffer Data */
     float* mCircularBufferLeft;
     float* mCircularBufferRight;
-    
     int mCircularBufferWriteHead;
     int mCircularBufferLength;
-    
     float mFeedbackLeft;
     float mFeedbackRight;
     
+    /** LFO Data */
     float mLfoPhase;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChorusFlangerAudioProcessor)
 };
