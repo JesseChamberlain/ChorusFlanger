@@ -98,7 +98,8 @@ ChorusFlangerAudioProcessorEditor::ChorusFlangerAudioProcessorEditor (ChorusFlan
     mType.addItem("Flanger", 2);
     addAndMakeVisible(mType);
     
-    mType.onChange = [this, typeParameter] { typeParameter->beginChangeGesture();
+    mType.onChange = [this, typeParameter] { 
+        typeParameter->beginChangeGesture();
         *typeParameter = mType.getSelectedItemIndex();
         typeParameter->endChangeGesture();
     };
