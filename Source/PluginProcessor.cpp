@@ -22,6 +22,8 @@ ChorusFlangerAudioProcessor::ChorusFlangerAudioProcessor()
                        )
 #endif
 {
+    
+    /** Construct and add parameters */
     addParameter(mDryWetParameter = new juce::AudioParameterFloat({ "drywet", 1 },
                                                                   "Dry Wet",
                                                                   0.0,
@@ -58,6 +60,7 @@ ChorusFlangerAudioProcessor::ChorusFlangerAudioProcessor()
                                                                      1,
                                                                      0));
     
+    /** Initialize default data values */
     mCircularBufferLeft = nullptr;
     mCircularBufferRight = nullptr;
     mCircularBufferWriteHead = 0;
@@ -145,24 +148,31 @@ void ChorusFlangerAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void ChorusFlangerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    /** Initialize data for the current sample rate, reset phase and writeheads */
+    
+    /** init phase */
     mLfoPhase = 0;
     
+    /** calculate circular buffer rate */
     mCircularBufferLength = sampleRate * MAX_DELAY_TIME;
     
+    /** init the left buffer */
     if (mCircularBufferLeft == nullptr) {
         mCircularBufferLeft = new float[int(mCircularBufferLength)];
     }
     
+    /** clear any junk data in new left buffer*/
     juce::zeromem(mCircularBufferLeft, mCircularBufferLength *sizeof(float));
     
+    /** init the right buffer */
     if (mCircularBufferRight == nullptr) {
         mCircularBufferRight = new float[int(mCircularBufferLength)];
     }
     
+    /** clear any junk data in new right buffer */
     juce::zeromem(mCircularBufferRight, mCircularBufferLength *sizeof(float));
     
+    /** init writehead to 0 */
     mCircularBufferWriteHead = 0;
 }
 
@@ -213,11 +223,14 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    /** obtain the left and right audio data pointers */
     float* leftChannel = buffer.getWritePointer(0);
     float* rightChannel = buffer.getWritePointer(1);
     
+    /** iterate through all the samples in the buffer */
     for (int i = 0; i < buffer.getNumSamples(); i++) {
         
+        /** generate the left lfo output */
         float lfoOutLeft = sin(2*M_PI * mLfoPhase);
         
         lfoOutLeft *= *mDepthParameter;
@@ -277,15 +290,17 @@ void ChorusFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         mFeedbackLeft = delaySampleLeft * *mFeedbackParameter;
         mFeedbackRight = delaySampleRight * *mFeedbackParameter;
         
-        
         mCircularBufferWriteHead++;
-        
-        buffer.setSample(0, i, buffer.getSample(0, i) * (1 - *mDryWetParameter) + delaySampleLeft * *mDryWetParameter);
-        buffer.setSample(1, i, buffer.getSample(1, i) * (1 - *mDryWetParameter) + delaySampleRight * *mDryWetParameter);
         
         if (mCircularBufferWriteHead >= mCircularBufferLength) {
             mCircularBufferWriteHead = 0;
         }
+        
+        float dryAmount = 1 - *mDryWetParameter;
+        float wetAmount = *mDryWetParameter;
+        
+        buffer.setSample(0, i, buffer.getSample(0, i) * (dryAmount) + delaySampleLeft * wetAmount);
+        buffer.setSample(1, i, buffer.getSample(1, i) * (dryAmount) + delaySampleRight * wetAmount);
     }
 }
 
